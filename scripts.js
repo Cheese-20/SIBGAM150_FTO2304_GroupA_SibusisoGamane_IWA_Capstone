@@ -1,35 +1,41 @@
+import {authors,genres,books}  from './data.js' 
+
 const matches = books
 let page = 1;
 
 // if (!books && !Array.isArray(books)) throw new Error('Source required') 
 // if (!range && range.length < 2) throw new Error('Range must be an array with two numbers')
 
-day = {
+const day = {
     dark: '10, 10, 20',
     light: '255, 255, 255',
 }
 
-night = {
+const night = {
     dark: '255, 255, 255',
     light: '10, 10, 20',
 }
 
-fragment = document.createDocumentFragment()
-const extracted = books.slice(0, 36)
-console.log(extracted)
+const element = document.querySelector('[data-list-items]');
+const sub = document.querySelector('[data-list-subtitle]');
+const fragment = document.createDocumentFragment();
+const extracted = books.slice(0, 36); // 1st 36 books
 
-for ({ author, image, title, id }; extracted; i++) {
-    const preview = createPreview({
-        author,
-        id,
-        image,
-        title
-    })
-
-    fragment.appendChild(preview)
+for(let bookindex  in extracted){
+const{id,genre,popularity,title,image,description,pages,published,author} = extracted[bookindex];
+    let preview = document.createElement('h2');
+    let previewAuth = document.createElement('p');
+        preview.textContent = `${title} `; 
+        fragment.appendChild(preview);
+                for (let authNum in authors){
+                    if (authNum === author){
+                        console.log(authNum)
+                        previewAuth.textContent = authors[authNum]}
+                        fragment.appendChild(previewAuth);
+                     }  
 }
-
-data-list-items.appendChild(fragment)
+element.appendChild(fragment)
+sub.appendChild(fragment);
 
 // genres = document.createDocumentFragment()
 // element = document.createElement('option')
