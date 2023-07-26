@@ -17,25 +17,57 @@ const night = {
 }
 
 const element = document.querySelector('[data-list-items]');
-const sub = document.querySelector('[data-list-subtitle]');
+const summary = document.querySelector('[data-list-active]');
 const fragment = document.createDocumentFragment();
 const extracted = books.slice(0, 36); // 1st 36 books
 
+// displaying the title and author and image 
+
 for(let bookindex  in extracted){
-const{id,genre,popularity,title,image,description,pages,published,author} = extracted[bookindex];
-    let preview = document.createElement('h2');
-    let previewAuth = document.createElement('p');
-        preview.textContent = `${title} `; 
-        fragment.appendChild(preview);
-                for (let authNum in authors){
-                    if (authNum === author){
-                        console.log(authNum)
-                        previewAuth.textContent = authors[authNum]}
-                        fragment.appendChild(previewAuth);
-                     }  
+    const{id,genre,popularity,title,image,description,pages,published,author} = extracted[bookindex];
+        let preview = document.createElement('h2');
+        let previewAuth = document.createElement('div');
+        let previewImg = document.createElement('img');
+            preview.textContent = title ; 
+            // preview.style.display = 'inline-block';
+            // preview.style.verticalAlign = 'middle' 
+
+            previewImg.src = image;
+            previewImg.style.width = '100px '; 
+            fragment.appendChild(previewImg);
+            fragment.appendChild(preview);
+        
+                    for (let authNum in authors){ // looping through object of authors to find the correct author
+                        if (authNum === author){
+                            previewAuth.textContent = authors[authNum]} //simplify this whole loop
+                            // previewAuth.style.display = 'inline'; 
+                            fragment.appendChild(previewAuth);
+                        }  
+/**
+ * Displays the dialog and adds functionality to the close button
+ * @param {*} event 
+ */
+    const summaryHandler = (event)=> {
+        event.preventDefault();
+        document.querySelector('[data-list-blur]').src = image ;
+        document.querySelector('[data-list-image]').src = image ;
+        document.querySelector('[data-list-title]').textContent = title ;
+        document.querySelector('[data-list-subtitle]').textContent = ` ${previewAuth.textContent}: ${new Date(published).getFullYear()}`;
+        document.querySelector('[data-list-description]').textContent = description ;
+        summary.style.display = 'block'
+         
+        const close = ()=>{
+            summary.style.display= 'none';
+        }
+
+        document.querySelector('[data-list-close]').addEventListener('click',close);
+    };
+
+     previewImg.addEventListener('click',summaryHandler);
 }
-element.appendChild(fragment)
-sub.appendChild(fragment);
+
+element.style.display = 'block'
+element.appendChild(fragment);
 
 // genres = document.createDocumentFragment()
 // element = document.createElement('option')
