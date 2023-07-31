@@ -70,23 +70,22 @@ element.addEventListener("click", function (event) {
   let active;
 
   for (const node of pathArray) {
-    if (active) break; // Exit the loop if the active book is found
+    if (active==true) break; 
 
     const previewId = node?.dataset?.preview;
    
-    for (const singleBook of books) { // Searching for the book with the matching id in the 'books' array
-      if (singleBook.id === previewId) {
-        active = singleBook; // Found the active book
+    for (const previewBook of books) { // Searching for the book with the matching id in the 'books' array
+      if (previewBook.id === previewId) {
+        active = previewBook; // Found the active book
         break;
       }
     }
   }
-  // If no active book is found, exit the function
+ 
   if (!active) return;
 
   // finds the author
   let authText ;
-
   for (let authIndex in authors) {
     if (active.author == authIndex) {
       authText = authors[authIndex];
