@@ -208,7 +208,6 @@ searchHeader.addEventListener("click", () => {
   });
 });
 
-
 /**
  *
  * What should happen when i click search
@@ -219,80 +218,58 @@ searchForm.addEventListener("submit", (event) => {
   const formData = new FormData(searchForm);
   const entries = formData.entries();
   const filters = Object.fromEntries(entries);
-  const searchTitle = document.querySelector('[data-search-title]').textContent;
+  const searchTitle = document.querySelector('[data-search-title]').value;
   filters.genres = searchGenres.options[searchGenres.selectedIndex].text;
   filters.authour = searchAuthors.options[searchAuthors.selectedIndex].text;
-  const result = [];
-  let check;
+   let result = [];
 
-  for (let bookIndex in books) {
-     const { title, author, genres } = books[bookIndex];               
-            //   if (result.length < 1) {
-            //          document.querySelector('[data-list-message]').classList.add('list__message_show')
-            //      } else {
-            //                    document.querySelector('[data-list-message]').classList.remove('list__message_show')
-            //              }
-
-            if (searchTitle == ""){
-                    for(let genreIndex in Types){
-                        if (Types[genreIndex]== filters.genres){
-                            for(let authcount in authors){
-                                if(authors[authcount]==filters.authour){
-                                    check = 'true';
-                                }
-                            }
-                        }
-                    }
-            }
-
-            else if(filters.author =='All Authors'){
-                for(let genreIndex in Types){ // IF auth blank check genres and title
-                    if (Types[genreIndex]== filters.genres){
-                        if(title==searchTitle){
-                            check ='true';
-                        }
-                    }
-                }
-            }
-
-            else if(filters.genres !== ''){ // ONLY FOR GENRE
-                for(let genreIndex in Types){
-                    if (genreIndex === genres){ 
-                       check = 'true';
-                    }}
-            };
-
-    if (check == 'true'){
-        result.push(books[bookIndex])
-    }
-   };
-
-            search.addEventListener('click', (event)=>{
-                event.preventDefault();
+        if(searchTitle !== 'Any' || searchTitle !== ''){
+         result = books.filter( val => {
+        return val.title === searchTitle;})}
+         
+        if (filters.genres !== ''){
+            result = books.filter( val => {
+                return Types[val.genres] === filters.genres;})}
+                 
+                if(filters.author !== 'All Authors'){
+                    result = books.filter( val => {
+                        return authors[val.author] === filters.author;})
+                }  
+//displaying the filtered data
+                search.addEventListener('click', (event)=>{
+                for (let resultIndex in result) {
+                    const { author: authorId, id, image, title } = result[resultIndex];
                     element.remove();
-                    for (resultIndex in result){
-                        const [image,title,author] = result[resultIndex];
-                        const elementPreview = document.createElement("div");
-                        elementPreview.classList = "preview";
-                        elementPreview.setAttribute("data-preview", id);
-                        elementPreview.innerHTML = /* html */ `
-                        <img
-                        class="preview__image"
-                                src="${image}"/>
-                                <div class="preview__info">
-                                    <h3 class="preview__title">${title}</h3>
-                                    <div class="preview__author">${author}</div>
-                                </div>`;
-                        fragment.appendChild(elementPreview);
-                        element.appendChild(fragment);
-}})});
+                    const elementPreview = document.createElement("div");
+                    elementPreview.classList = "preview";
+                    elementPreview.setAttribute("data-preview", id);
+                    elementPreview.innerHTML = /* html */ `
+                          <img
+                              class="preview__image"
+                              src="${image}"
+                          />
+                          <div class="preview__info">
+                              <h3 class="preview__title">${title}</h3>
+                              <div class="preview__author">${authors[authorId]}</div>
+                          </div>`;
+                    fragment.appendChild(elementPreview);
+                    element.appendChild(fragment);
+                  };})
 
+                // Checking and displaying the the correct button according to the length of result array
+                 if (result.length < 1) {
+                     document.querySelector('[data-list-message]').classList.add('list__message_show')
+                 } else {
+                               document.querySelector('[data-list-message]').classList.remove('list__message_show')
+                         }
+});
 
+//button mess
 const msgnew = document.createAttribute("class");
 if (counter >= 1) {
   msgnew.value = "list__message_show";
 } else {
-  msgnew.value = "list__message_show";
+  msgnew.value = "";
 }
 
 listBtn.addEventListener("click", (event) => {
@@ -319,21 +296,22 @@ listBtn.addEventListener("click", (event) => {
         `;
 
         counter++
+        page ++
         
     fragments.appendChild(elementNew);
   }
   element.appendChild(fragments);
 });
 
-// let initial = [page * BOOKS_PER_PAGE];
-// let remaining =matches.length  -counter;
-// const isremaining = initial - remaining > 0 ? true : false;
-// const val = isremaining == true ? initial - remaining : (listBtn.disabled = true );
-//  listBtn.disabled ? listBtn.innerHTML=`0` : 
-// listBtn.innerHTML =
-//   /* html */
-//   `<span>Show more</span>
-//         <span class="list__remaining"> (${val})</span>`; //supposed to be remaining;
+let initial = [page * BOOKS_PER_PAGE];
+let remaining =matches.length - counter;
+const isremaining = initial - remaining < 0 ? true : false;
+const val = isremaining == true ? initial - remaining : (listBtn.disabled = true );
+ listBtn.disabled ? listBtn.innerHTML==`0` : 
+listBtn.innerHTML =
+  /* html */
+  `<span>Show more</span>
+        <span class="list__remaining"> (${-val})</span>`; //supposed to be remaining;
 
 window.scrollTo({ top: 0, behavior: "smooth" });
 searchOverlay.style.display = "none";
