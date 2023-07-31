@@ -1,4 +1,5 @@
-import { authors, genres, books, BOOKS_PER_PAGE } from "./data.js";
+import { authors, books, BOOKS_PER_PAGE } from "./data.js";
+import { genres as Types } from "./data.js";
 
 const matches = books;
 let page = 1;
@@ -32,8 +33,8 @@ const searchCancel = document.querySelector("[data-search-cancel]");
 const settingsOverlay = document.querySelector("[data-settings-overlay]");
 const settings = document.querySelector("[data-header-settings]");
 const search = document.querySelector("[data-search-add]");
-const searchChild = searchForm.children;
-// const save = document.querySelector('.overlay__row .overlay__button_primary');
+// const searchChild = searchForm.children;
+const save = document.querySelector('.overlay__row .overlay__button_primary');
 const theme = document.querySelector(".overlay__input overlay__input_select");
 const fragment = document.createDocumentFragment();
 const extracted = books.slice(0, 36);
@@ -87,7 +88,7 @@ element.addEventListener("click", function (event) {
   let authText ;
 
   for (let authIndex in authors) {
-    if (active.author == authors) {
+    if (active.author == authIndex) {
       authText = authors[authIndex];
     }
   }
@@ -117,11 +118,11 @@ elementOpt.value = "any";
 elementOpt.value = "All Genres";
 genresFrag.appendChild(elementOpt);
 
-for (let genreIndex in genres) {
-  const { id, genreName } = Object.entries(genres);
+for (let genreIndex in Types) {
+  const { id, genreName } = Object.entries(Types);
   const genreOpt = document.createElement("option");
   genreOpt.value = genreName;
-  genreOpt.innerText = genres[genreIndex];
+  genreOpt.innerText = Types[genreIndex];
   genresFrag.appendChild(genreOpt);
 }
 
@@ -219,90 +220,87 @@ searchForm.addEventListener("submit", (event) => {
   const formData = new FormData(searchForm);
   const entries = formData.entries();
   const filters = Object.fromEntries(entries);
+  const searchTitle = document.querySelector('[data-search-title]').textContent;
   filters.genres = searchGenres.options[searchGenres.selectedIndex].text;
   filters.authour = searchAuthors.options[searchAuthors.selectedIndex].text;
   const result = [];
-  let genreResult ;
-  
- 
+  let check;
+
   for (let bookIndex in books) {
-     const { titleMatch, authorMatch, genreMatch } = books[bookIndex];
-                        for (let genreIndex in genres){
-                            if (filters.genres === genres[genreIndex]){
-                                    genreResult = genres[genreIndex];
-                                    break
+     const { title, author, genres } = books[bookIndex];               
+            //   if (result.length < 1) {
+            //          document.querySelector('[data-list-message]').classList.add('list__message_show')
+            //      } else {
+            //                    document.querySelector('[data-list-message]').classList.remove('list__message_show')
+            //              }
+
+            if (searchTitle == ""){
+                    for(let genreIndex in Types){
+                        if (Types[genreIndex]== filters.genres){
+                            for(let authcount in authors){
+                                if(authors[authcount]==filters.authour){
+                                    check = 'true';
+                                }
                             }
                         }
-        if (filters.genre === 'any' && filters.author === 'any') {
-        if (books.title.toLowerCase().includes(filters.title.toLowerCase())){ // check the title
-         result.push(books[bookIndex]);
-        }} else
-        if (filters.genre === 'any') {  // if genre is blank  check author and title
-            if (books.title.toLowerCase().includes(title.toLowerCase()) && filters.author === authorMatch){
-             result.push(books[bookIndex])}
-            }else
+                    }
+            }
 
-           if (filters.title === '') {
-            if (authorMatch === filters.author && genreResult.includes(filters.genre)){
-             result.push(books[bookIndex])}
-            }else
+            else if(filters.author =='All Authors'){
+                for(let genreIndex in Types){ // IF auth blank check genres and title
+                    if (Types[genreIndex]== filters.genres){
+                        if(title==searchTitle){
+                            check ='true';
+                        }
+                    }
+                }
+            }
 
-           if (filters.title === '' && filters.author === 'any' ) {
-             genreResult ==filters.genres ?  result.push(books[bookIndex]) : null;}else
+            else if(filters.genres !== ''){ // ONLY FOR GENRE
+                for(let genreIndex in Types){
+                    if (genreIndex === genres){ 
+                       check = 'true';
+                    }}
+            };
 
-             if (filters.title === titleMatch) {
-                 result.push(books[bookIndex])}else
-                
+    if (check == 'true'){
+        result.push(books[bookIndex])
+    }
+   };
 
-                if (filters.author === authorMatch) {
-                     result.push(books[bookIndex])}else
-
-                     if (genreResult === filters.genres) {
-                         result.push(books)};
-                        
-            //  if (result.length < 1) {
-            //     document.querySelector('[data-list-message]').classList.add('list__message_show')
-            // } else {
-            //     document.querySelector('[data-list-message]').classList.remove('list__message_show')
-            // }
-
-           
-  };
-
- console.log(result)
-    search.addEventListener('click', (event)=>{
-        event.preventDefault();
-            element.remove();
-            for (resultIndex in result){
-                const [image,title,author] = result[resultIndex];
-                const elementPreview = document.createElement("div");
-                elementPreview.classList = "preview";
-                elementPreview.setAttribute("data-preview", id);
-                elementPreview.innerHTML = /* html */ `
-                <img
-                class="preview__image"
-                        src="${image}"/>
-                        <div class="preview__info">
-                            <h3 class="preview__title">${title}</h3>
-                            <div class="preview__author">${author}</div>
-                        </div>`;
-                fragment.appendChild(elementPreview);
-                element.appendChild(fragment);
-}});
-});
+            search.addEventListener('click', (event)=>{
+                event.preventDefault();
+                    element.remove();
+                    for (resultIndex in result){
+                        const [image,title,author] = result[resultIndex];
+                        const elementPreview = document.createElement("div");
+                        elementPreview.classList = "preview";
+                        elementPreview.setAttribute("data-preview", id);
+                        elementPreview.innerHTML = /* html */ `
+                        <img
+                        class="preview__image"
+                                src="${image}"/>
+                                <div class="preview__info">
+                                    <h3 class="preview__title">${title}</h3>
+                                    <div class="preview__author">${author}</div>
+                                </div>`;
+                        fragment.appendChild(elementPreview);
+                        element.appendChild(fragment);
+}})});
 
 
-// const msgnew = document.createAttribute("class");
-// if (counter >= 1) {
-//   msgnew.value = "list__message_show";
-// } else {
-//   msgnew.value = "list__message_show";
-// }
+const msgnew = document.createAttribute("class");
+if (counter >= 1) {
+  msgnew.value = "list__message_show";
+} else {
+  msgnew.value = "list__message_show";
+}
 
 listBtn.addEventListener("click", (event) => {
+
   element.innerHTML = "";
   const fragments = document.createDocumentFragment();
-  const extractedSource = matches.slice(0, matches.length - 1);
+  const extractedSource = matches.slice(0, (counter + 30));
 
   for (let props in extractedSource) {
     const { author: authorId, id, image, title } = extractedSource[props];
@@ -321,26 +319,27 @@ listBtn.addEventListener("click", (event) => {
             </div>
         `;
 
+        counter++
+        
     fragments.appendChild(elementNew);
   }
   element.appendChild(fragments);
 });
 
-let initial = matches.length - [page * BOOKS_PER_PAGE];
-let remaining = 0;
-const isremaining = initial - remaining > 0 ? true : false;
-const val =
-  isremaining == true ? initial - remaining : (listBtn.disabled = initial = 0);
-
-listBtn.innerHTML =
-  /* html */
-  `<span>Show more</span>
-        <span class="list__remaining"> (${val})</span>`; //supposed to be remaining
+// let initial = [page * BOOKS_PER_PAGE];
+// let remaining =matches.length  -counter;
+// const isremaining = initial - remaining > 0 ? true : false;
+// const val = isremaining == true ? initial - remaining : (listBtn.disabled = true );
+//  listBtn.disabled ? listBtn.innerHTML=`0` : 
+// listBtn.innerHTML =
+//   /* html */
+//   `<span>Show more</span>
+//         <span class="list__remaining"> (${val})</span>`; //supposed to be remaining;
 
 window.scrollTo({ top: 0, behavior: "smooth" });
 searchOverlay.style.display = "none";
 
-formSettings.addEventListener("submit", (event) => {
+settings.addEventListener("click", (event) => {
   event.preventDefault();
   settingsOverlay.style.display = "block";
   const formData = new FormData(formSettings);
@@ -352,10 +351,10 @@ formSettings.addEventListener("submit", (event) => {
    } else {
     document.documentElement.style.setProperty('--color-dark', '10, 10, 20');
     document.documentElement.style.setProperty('--color-light', '255, 255, 255');
-    }
+    } 
 
-    document.querySelector('[data-settings-overlay]').addEventListener("click", (event) => {
+    save.addEventListener("click", (event) => {
     event.preventDefault();
     settingsOverlay.style.display = "none";
     });
-        } );
+})
