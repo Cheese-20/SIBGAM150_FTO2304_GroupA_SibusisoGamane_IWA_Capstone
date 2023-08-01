@@ -4,6 +4,8 @@ import { genres as Types } from "./data.js";
 const matches = books;
 let page = 1;
 
+
+//throw error if there is no source code 
 if (!books && !Array.isArray(books)) throw new Error("Source required");
 
 const css = {
@@ -16,7 +18,9 @@ const css = {
     light: "10, 10, 20",
   },
 };
-
+/**
+ * All the varible that have been used
+ */
 const element = document.querySelector("[data-list-items]");
 const summary = document.querySelector("[data-list-active]");
 const searchGenres = document.querySelector("[data-search-genres]");
@@ -33,9 +37,8 @@ const searchCancel = document.querySelector("[data-search-cancel]");
 const settingsOverlay = document.querySelector("[data-settings-overlay]");
 const settings = document.querySelector("[data-header-settings]");
 const search = document.querySelector("[data-search-add]");
-// const searchChild = searchForm.children;
-const save = document.querySelector('.overlay__row .overlay__button_primary');
-const theme = document.querySelector(".overlay__input overlay__input_select");
+const save = document.querySelector("[data-theme-val]");
+const theme = document.querySelector("[data-settings-theme]");
 const fragment = document.createDocumentFragment();
 const extracted = books.slice(0, 36);
 let counter = 0;
@@ -57,7 +60,7 @@ for (let extractedIndex in extracted) {
         </div>`;
   fragment.appendChild(elementPreview);
   element.appendChild(fragment);
-  counter ++
+  counter++;
 }
 
 /**
@@ -70,22 +73,23 @@ element.addEventListener("click", function (event) {
   let active;
 
   for (const node of pathArray) {
-    if (active==true) break; 
+    if (active == true) break;
 
     const previewId = node?.dataset?.preview;
-   
-    for (const previewBook of books) { // Searching for the book with the matching id in the 'books' array
+
+    for (const previewBook of books) {
+      // Searching for the book with the matching id in the 'books' array
       if (previewBook.id === previewId) {
         active = previewBook; // Found the active book
         break;
       }
     }
   }
- 
+
   if (!active) return;
 
-  // finds the author
-  let authText ;
+  /**
+   * finds the authour so it can be displayed */ let authText;
   for (let authIndex in authors) {
     if (active.author == authIndex) {
       authText = authors[authIndex];
@@ -147,13 +151,14 @@ for (let authIndex in authors) {
 searchAuthors.appendChild(authorsFrag);
 
 /**
- * Changes the theme between Light and Dark
+ * Changes the theme between Light and Dark for the element
  */
 
 document.querySelector("[data-settings-theme]").value === window.matchMedia &&
 window.matchMedia("(prefers-color-scheme: dark)").matches
   ? "night"
   : "day";
+  
 const v =
   window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "night"
@@ -161,7 +166,7 @@ const v =
 
 element.style.setProperty("--color-dark", css[v].dark);
 element.style.setProperty("--color-light", css[v].light);
-listBtn.textContent = ` Show more (${books.pages} - ${BOOKS_PER_PAGE})`;
+listBtn.textContent = ` Show more (${books.pages} - ${counter})`;
 
 // Disables the button if the length of the books is greater thn 0
 
@@ -190,15 +195,14 @@ const closeSettings = () => {
 cancel.addEventListener("click", closeSearch());
 settingsClose.addEventListener("click", closeSettings());
 
-// searchForm.addEventListener('submit', () => { actions.settings.submit })
 
 listBtn.addEventListener("click", () => {
-  // element.appendChild( matches ,page * BOOKS_PER_PAGE, (page + 1) * BOOKS_PER_PAGE);
-  // actions.list.updateRemaining();
   searchForm.actions = "???";
   page = page + 1;
 });
-
+/**
+ * displays the search form header
+ */
 searchHeader.addEventListener("click", () => {
   searchOverlay.style.display = "block";
   searchTitle.focus();
@@ -210,7 +214,7 @@ searchHeader.addEventListener("click", () => {
 
 /**
  *
- * What should happen when i click search
+ * What should happen when I click search
  */
 
 searchForm.addEventListener("submit", (event) => {
@@ -218,32 +222,36 @@ searchForm.addEventListener("submit", (event) => {
   const formData = new FormData(searchForm);
   const entries = formData.entries();
   const filters = Object.fromEntries(entries);
-  const searchTitle = document.querySelector('[data-search-title]').value;
+  const searchTitle = document.querySelector("[data-search-title]").value;
   filters.genres = searchGenres.options[searchGenres.selectedIndex].text;
   filters.authour = searchAuthors.options[searchAuthors.selectedIndex].text;
-   let result = [];
+  let result = [];
+  if (searchTitle !== "Any" || searchTitle !== "") {
+    result = books.filter((val) => {
+      return val.title === searchTitle;
+    });
+  }
 
-        if(searchTitle !== 'Any' || searchTitle !== ''){
-         result = books.filter( val => {
-        return val.title === searchTitle;})}
-         
-        if (filters.genres !== ''){
-            result = books.filter( val => {
-                return Types[val.genres] === filters.genres;})}
-                 
-                if(filters.author !== 'All Authors'){
-                    result = books.filter( val => {
-                        return authors[val.author] === filters.author;})
-                }  
-//displaying the filtered data
-                search.addEventListener('click', (event)=>{
-                for (let resultIndex in result) {
-                    const { author: authorId, id, image, title } = result[resultIndex];
-                    element.remove();
-                    const elementPreview = document.createElement("div");
-                    elementPreview.classList = "preview";
-                    elementPreview.setAttribute("data-preview", id);
-                    elementPreview.innerHTML = /* html */ `
+  if (filters.genres !== "") {
+    result = books.filter((val) => {
+      return Types[val.genres] === filters.genres;
+    });
+  }
+
+  if (filters.author !== "All Authors") {
+    result = books.filter((val) => {
+      return authors[val.author] === filters.author;
+    });
+  }
+  //displaying the filtered data
+  search.addEventListener("click", (event) => {
+    for (let resultIndex in result) {
+      const { author: authorId, id, image, title } = result[resultIndex];
+      element.remove();
+      const elementPreview = document.createElement("div");
+      elementPreview.classList = "preview";
+      elementPreview.setAttribute("data-preview", id);
+      elementPreview.innerHTML = /* html */ `
                           <img
                               class="preview__image"
                               src="${image}"
@@ -252,19 +260,24 @@ searchForm.addEventListener("submit", (event) => {
                               <h3 class="preview__title">${title}</h3>
                               <div class="preview__author">${authors[authorId]}</div>
                           </div>`;
-                    fragment.appendChild(elementPreview);
-                    element.appendChild(fragment);
-                  };})
+      fragment.appendChild(elementPreview);
+      element.appendChild(fragment);
+    }
+  });
 
-                // Checking and displaying the the correct button according to the length of result array
-                 if (result.length < 1) {
-                     document.querySelector('[data-list-message]').classList.add('list__message_show')
-                 } else {
-                               document.querySelector('[data-list-message]').classList.remove('list__message_show')
-                         }
+  // Checking and displaying the the correct button according to the length of result array
+  if (result.length < 1) {
+    document
+      .querySelector("[data-list-message]")
+      .classList.add("list__message_show");
+  } else {
+    document
+      .querySelector("[data-list-message]")
+      .classList.remove("list__message_show");
+  }
 });
 
-//button mess
+//button message
 const msgnew = document.createAttribute("class");
 if (counter >= 1) {
   msgnew.value = "list__message_show";
@@ -273,10 +286,9 @@ if (counter >= 1) {
 }
 
 listBtn.addEventListener("click", (event) => {
-
   element.innerHTML = "";
   const fragments = document.createDocumentFragment();
-  const extractedSource = matches.slice(0, (counter + 30));
+  const extractedSource = matches.slice(0, counter + 30);
 
   for (let props in extractedSource) {
     const { author: authorId, id, image, title } = extractedSource[props];
@@ -295,43 +307,57 @@ listBtn.addEventListener("click", (event) => {
             </div>
         `;
 
-        counter++
-        page ++
-        
+    counter++;
+    page++;
+
     fragments.appendChild(elementNew);
   }
   element.appendChild(fragments);
 });
 
+/**
+ * edits value of the button
+ */
 let initial = [page * BOOKS_PER_PAGE];
-let remaining =matches.length - counter;
+let remaining = matches.length - counter;
 const isremaining = initial - remaining < 0 ? true : false;
-const val = isremaining == true ? initial - remaining : (listBtn.disabled = true );
- listBtn.disabled ? listBtn.innerHTML==`0` : 
-listBtn.innerHTML =
-  /* html */
-  `<span>Show more</span>
-        <span class="list__remaining"> (${-val})</span>`; //supposed to be remaining;
+const val =
+  isremaining == true ? counter + remaining : (listBtn.disabled = true);
+listBtn.innerHTML == `0`
+  ? (listBtn.disabled = true)
+  : (listBtn.innerHTML =
+      /* html */
+      `<span>Show more</span>
+        <span class="list__remaining"> (${val})</span>`); //supposed to be remaining;
 
 window.scrollTo({ top: 0, behavior: "smooth" });
 searchOverlay.style.display = "none";
 
+/**
+ * changes the theme colour accordingly
+ */
 settings.addEventListener("click", (event) => {
   event.preventDefault();
   settingsOverlay.style.display = "block";
-  const formData = new FormData(formSettings);
-  const {theme} = Object.fromEntries(formData);
+  const formTheme = new FormData(formSettings);
+  const dataTheme = Object.fromEntries(formTheme);
+  dataTheme.colour = theme.options[theme.selectedIndex].text;
 
-    if (theme === 'night') {
-    document.documentElement.style.setProperty('--color-dark', '255, 255, 255');
-    document.documentElement.style.setProperty('--color-light', '10, 10, 20');
-   } else {
-    document.documentElement.style.setProperty('--color-dark', '10, 10, 20');
-    document.documentElement.style.setProperty('--color-light', '255, 255, 255');
-    } 
-
-    save.addEventListener("click", (event) => {
-    event.preventDefault();
+  save.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (dataTheme.colour === "Day") {
+      document.documentElement.style.setProperty(
+        "--color-dark",
+        "255, 255, 255"
+      );
+      document.documentElement.style.setProperty("--color-light", "10, 10, 20");
+    } else if (dataTheme.colour === "Night") {
+      document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
+      document.documentElement.style.setProperty(
+        "--color-light",
+        "255, 255, 255"
+      );
+    }
     settingsOverlay.style.display = "none";
-    });
-})
+  });
+});
