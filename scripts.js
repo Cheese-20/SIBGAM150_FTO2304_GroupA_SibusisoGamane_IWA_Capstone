@@ -87,7 +87,6 @@ element.addEventListener("click", function (event) {
   }
 
   if (!active) return;
-
   /**
    * finds the authour so it can be displayed */ let authText;
   for (let authIndex in authors) {
@@ -154,8 +153,7 @@ searchAuthors.appendChild(authorsFrag);
  * Changes the theme between Light and Dark for the element
  */
 
-document.querySelector("[data-settings-theme]").value === window.matchMedia &&
-window.matchMedia("(prefers-color-scheme: dark)").matches
+document.querySelector("[data-settings-theme]").value === window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
   ? "night"
   : "day";
   
@@ -230,19 +228,18 @@ searchForm.addEventListener("submit", (event) => {
     result = books.filter((val) => {
       return val.title === searchTitle;
     });
-  }
+//   } else
+//   if (filters.genres !== "") {
+//     result = books.filter((val) => {
+//       return Types[val.genres] === filters.genres;
+//     });
+//   }else
+//   if (filters.author !== "All Authors") {
+//     result = books.filter((val) => {
+//       return authors[val.author] === filters.author;
+//     });
+  };
 
-  if (filters.genres !== "") {
-    result = books.filter((val) => {
-      return Types[val.genres] === filters.genres;
-    });
-  }
-
-  if (filters.author !== "All Authors") {
-    result = books.filter((val) => {
-      return authors[val.author] === filters.author;
-    });
-  }
   //displaying the filtered data
   search.addEventListener("click", (event) => {
     for (let resultIndex in result) {
@@ -260,8 +257,11 @@ searchForm.addEventListener("submit", (event) => {
                               <h3 class="preview__title">${title}</h3>
                               <div class="preview__author">${authors[authorId]}</div>
                           </div>`;
+
       fragment.appendChild(elementPreview);
       element.appendChild(fragment);
+
+                searchOverlay.style.display = "none"
     }
   });
 
@@ -275,6 +275,9 @@ searchForm.addEventListener("submit", (event) => {
       .querySelector("[data-list-message]")
       .classList.remove("list__message_show");
   }
+
+
+
 });
 
 //button message
@@ -313,6 +316,7 @@ listBtn.addEventListener("click", (event) => {
     fragments.appendChild(elementNew);
   }
   element.appendChild(fragments);
+  
 });
 
 /**
